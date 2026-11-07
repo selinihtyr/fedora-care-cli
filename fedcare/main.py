@@ -24,6 +24,8 @@ def run_root(cmd):
     r = subprocess.run(["sudo"] + cmd, capture_output=True, text=True, check=False)
     return (r.stdout or r.stderr or "").strip()
 
+def run_ping(cmd):
+    r = subprocess.run(cmd, capture_output=True, text=True, check=False)
 
 @click.group(name="fedcare", help="Fedora maintenance & system monitoring tool")
 def cli():
@@ -270,9 +272,8 @@ def network(as_json):
     # Ping tests
     ping_ip = run(["ping", "-c1", "-W2", "8.8.8.8"])
     ping_dns = run(["ping", "-c1", "-W2", "google.com"])
-    ping_ip_ok = "1 received" in ping_ip or "1 packets received" in ping_ip or ", 0% packet loss" in ping_ip
-    ping_dns_ok = "1 received" in ping_dns or "1 packets received" in ping_dns or ", 0% packet loss" in ping_dns
-
+    ping_ip_ok = run_ping(["ping", "-1", "-W1" "8.8.8.8"])
+    ping_dns_ok = run_ping(["ping", "-c1", "-W2", "google.com"])
     data = {
         "interfaces": ifaces,
         "dns": dns_servers,
